@@ -1,0 +1,9 @@
+V8 js engine. Written in c++. That takes js code and converts it machine code.
+Browser icinde konsola window yazarsan. Window objesi acilir. document de objenin bir parcasi -> DOM a referans eder.
+
+Why should I use node.js?
+Node js is a non-blocking. When something in I/O it do not block other part of execution. Single threaded.
+
+pwd -> Bulundugun lokasyonu gosterir.
+
+1.
