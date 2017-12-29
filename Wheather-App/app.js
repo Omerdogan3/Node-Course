@@ -1,4 +1,12 @@
 const request = require('request');
+const yargs = require('yargs');
+
+const argv = yargs.options({
+    a: {
+        demand: true,
+        alias
+    }
+})
 
 request({
     url:'https://maps.googleapis.com/maps/api/geocode/json?address=1301%20lombard%20street%20philadelphia',
