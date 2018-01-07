@@ -1,24 +1,42 @@
-// const request = require('request');
-// const yargs = require('yargs');
-// const geocode = require('./geocode/geocode.js');
+const request = require('request');
+const yargs = require('yargs');
+const geocode = require('./geocode/geocode.js');
+const weather = require('./weather/weather');
+
+const argv = yargs
+  .options({
+    a: {
+      demand: true,
+      alias: 'address',
+      describe: 'Address to fetch weather for',
+      string: true
+    }
+  })
+  .help()
+  .alias('help', 'h')
+  .argv;
+
+geocode.geocodeAddress(argv.address, (errrorMessage, results)=>{
+  if(errrorMessage){
+    console.log(errrorMessage);
+  }else{
+    console.log(results.address);
+    weather.getWeather(results.latitude, results.longitude,  (errrorMessage, weatherResults) => {
+      if(errrorMessage){
+        console.log(errrorMessage);
+      }else{
+        console.log(`It is currently ${weatherResults.temperature}, It feels like ${weatherResults.apparentTemperature}`);
+      }
+    });
+  }
+});
 
 
-// const argv = yargs
-//   .options({
-//     a: {
-//       demand: true,
-//       alias: 'address',
-//       describe: 'Address to fetch weather for',
-//       string: true
-//     }
-//   })
-//   .help()
-//   .alias('help', 'h')
-//   .argv;
 
-// geocode.geocodeAddress(argv.address);
 
 // var encodedAddress = encodeURIComponent(argv.address);
+
+
 
 // request({
 //   url: `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}`,
@@ -34,21 +52,3 @@
 //     console.log(`Longitude: ${body.results[0].geometry.location.lng}`);
 //   }
 // });
-
-const request = require('request');
-
-request({
-  url: `https://api.darksky.net/forecast/73ea9c2609dbe0fe919296898218c1eb/41,32`,
-  json: true
-  },(error, response, body)=>{
-    if(error){
-      console.log('Unable To Connect');
-    }else if(response.statusCode === 400){
-      console.log('Unable to fetch weather');
-    }else if(response.statusCode === 200){
-      console.log(body.currently.temperature);
-    }
-});
-
-
-
