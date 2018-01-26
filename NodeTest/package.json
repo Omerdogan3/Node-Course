@@ -9,9 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.14.0",
     "mocha": "^3.0.0"
   },
   "devDependencies": {
-    "expect": "^1.20.2"
+    "expect": "^1.20.2",
+    "supertest": "^2.0.0"
   }
 }
