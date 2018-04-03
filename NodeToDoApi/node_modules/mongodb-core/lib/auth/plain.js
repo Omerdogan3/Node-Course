@@ -1,10 +1,12 @@
 "use strict";
 
 var f = require('util').format
-  , crypto = require('crypto')
-  , Binary = require('bson').Binary
+  , retrieveBSON = require('../connection/utils').retrieveBSON
   , Query = require('../connection/commands').Query
   , MongoError = require('../error');
+
+var BSON = retrieveBSON()
+  , Binary = BSON.Binary;
 
 var AuthSession = function(db, username, password) {
   this.db = db;
@@ -47,7 +49,6 @@ Plain.prototype.auth = function(server, connections, db, username, password, cal
 
   // Valid connections
   var numberOfValidConnections = 0;
-  var credentialsValid = false;
   var errorObject = null;
 
   // For each connection we need to authenticate
@@ -68,10 +69,7 @@ Plain.prototype.auth = function(server, connections, db, username, password, cal
       // Let's start the process
       server(connection, new Query(self.bson, "$external.$cmd", command, {
         numberToSkip: 0, numberToReturn: 1
-      }).toBin(), function(err, r) {
-      // server.command("$external.$cmd"
-      //   , command
-      //   , { connection: connection }, function(err, r) {
+      }), function(err, r) {
         // Adjust count
         count = count - 1;
 
@@ -83,7 +81,6 @@ Plain.prototype.auth = function(server, connections, db, username, password, cal
         } else if(r.result['errmsg']) {
           errorObject = r.result;
         } else {
-          credentialsValid = true;
           numberOfValidConnections = numberOfValidConnections + 1;
         }
 
@@ -146,13 +143,11 @@ Plain.prototype.logout = function(dbName) {
  */
 Plain.prototype.reauthenticate = function(server, connections, callback) {
   var authStore = this.authStore.slice(0);
-  var err = null;
   var count = authStore.length;
   if(count == 0) return callback(null, null);
   // Iterate over all the auth details stored
   for(var i = 0; i < authStore.length; i++) {
-    this.auth(server, connections, authStore[i].db, authStore[i].username, authStore[i].password, function(err, r) {
-      if(err) err = err;
+    this.auth(server, connections, authStore[i].db, authStore[i].username, authStore[i].password, function(err) {
       count = count - 1;
       // Done re-authenticating
       if(count == 0) {
